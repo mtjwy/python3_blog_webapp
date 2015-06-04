@@ -41,7 +41,18 @@ define __call__() in class RequestHandler, and we can look at it as a instance f
 3. call URL function
 4. convert result to web.Response object
 '''
-
+def has_request_arg(fn):
+	sig = inspect.signature(fn)
+	params = sig.parameters
+	found = False
+	for name, param in params.items():
+		if name == 'request':
+			found = True
+			continue
+		if found and (param.kind != inspect.Parameter.VAR_POSITIONAL and param.kind != inspect.Parameter.KEYWORD_ONLY and param.kind != inspect.Parameter.VAR_KEYWORD):
+			raise ValueError('request parameter must be the last named parameter in function:%s%s' %(fn.__name__, str(sig)))
+		return found
+		
 class RequestHandler(object):
 	def __init__(self, app, fn):
 		self._app = app
