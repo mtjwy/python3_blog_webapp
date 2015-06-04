@@ -6,6 +6,7 @@ Default configurations.
 '''
 
 
+
 configs = {
     'debug': True,
     'db': {
@@ -16,6 +17,6 @@ configs = {
         'db': 'blogWeb'
     },
     'session': {
-        'secret': 'blogWeb'
+        'secret': 'BlogWeb'
     }
 }
