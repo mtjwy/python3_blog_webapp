@@ -61,7 +61,22 @@ def response_factory(app, handler):
 		resp.content_type = 'text/plain;charset=utf-8'
 		return resp
 	return response
-
+	
+@asyncio.coroutine
+def data_factory(app, handler):
+	@asyncio.coroutine
+	def parse_data(request):
+		if request.method == 'POST':
+			if request.content_type.startswith('application/json'):
+				request.__data__ = yield from request.json()
+				logging.info('request json: %s' % str(request.__data__))
+			elif request.content_type.startswith('application/x-www-form-urlencoded'):
+				request.__data__ = yield from request.post()
+				logging.info('request form: %s' % str(request.__data__))
+		return (yield from handler(request))
+	return parse_data
+	
+	
 def index(request):#create a request handler. # accepts only request parameters of type Request and returns Response instance.
 	return web.Response(body = b'<h1>Awesome Blog</h1>')
 	
