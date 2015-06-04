@@ -6,6 +6,9 @@ __author__ = 'yu'
 import asyncio, logging
 import aiomysql
 
+def log(sql, args = ()):
+	logging.info('SQL: %s' % sql)
+
 #create a global connection pool
 @asyncio.coroutine
 def create_pool(loop, **kw):
@@ -39,6 +42,20 @@ def select(sql, args, size = None):
 		yield from cur.close()
 		logging.info('row returned: %s' % len(rs))
 		return rs
+
+#wrap INSERT, UPDATE, DELETE
+@asyncio.coroutine
+def execute(sql, args):
+	log(sql)
+	with (yield from __pool) as conn:
+		try:
+			cur = yield from conn.cursor()
+			yield from cur.execute(sql.replace('?', '%s'), args)
+			affected = cur.rowcount
+			yield from cur.close()
+		except BaseException as e:
+			raise
+		return affected
 
 
 
