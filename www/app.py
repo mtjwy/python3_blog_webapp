@@ -76,6 +76,18 @@ def data_factory(app, handler):
 		return (yield from handler(request))
 	return parse_data
 	
+def datetime_filter(t):
+	delta = int(time.time() - t)
+	if delta < 60:
+		return u'1 minute ago'
+	if delta < 3600:
+		return u'%s minutes ago' % (delta // 60)
+	if delta < 86400:
+		return u'%s hours ago' % (delta // 3600)
+	if delta < 604800:
+		return u'%s days ago' % (delta // 86400)
+	dt = datetime.fromtimestamp(t)
+	return u'%s-%s-%s' % (dt.year, dt.month, dt.day)
 	
 def index(request):#create a request handler. # accepts only request parameters of type Request and returns Response instance.
 	return web.Response(body = b'<h1>Awesome Blog</h1>')
