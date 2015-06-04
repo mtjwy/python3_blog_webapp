@@ -12,7 +12,14 @@ import asyncio, os, json, time
 from datetime import datetime
 from aiohttp import web
 
-
+@asyncio.coroutine
+def logger_factory(app, handler):
+	@asyncio.coroutine
+	def logger(request):
+		logging.info('Request: %s %s' % (request.method, request.path))
+		# yield from asyncio.sleep(0.3)
+		return (yield from handler(request))
+	return logger
 
 
 def index(request):#create a request handler. # accepts only request parameters of type Request and returns Response instance.
