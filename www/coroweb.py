@@ -73,6 +73,14 @@ def get_named_kw_args(fn):
 			args.append(name)
 	return tuple(args)
 
+def get_required_kw_args(fn):
+	args = []
+	params = inspect.signature(fn).parameters
+	for name, param in param.items():
+		if param.kind == inspect.Parameter.KEYWORD_ONLY and param.default == inspect.Parameter.empty:
+			args.append(name)
+	return tuple(args)
+
 		
 class RequestHandler(object):
 	def __init__(self, app, fn):
