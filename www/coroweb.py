@@ -32,3 +32,40 @@ def post(path):
 		return wrapper
 	return decorator
 	
+
+'''
+create RequestHandler() to encapsulate a URL processing function
+define __call__() in class RequestHandler, and we can look at it as a instance func
+1. parse URL function to get parameters needed
+2. get required parameters from request
+3. call URL function
+4. convert result to web.Response object
+'''
+
+class RequestHandler(object):
+	def __init__(self, app, fn):
+		self._app = app
+		self._func = fn
+		self._has_request_arg = has_request_arg(fn)
+		self._has_var_kw_args = has_var_kw_arg(fn)
+		self.has_named_kw_args = has_named_kw_args(fn)
+		self._named_kw_args = get_named_kw_args(fn)
+		self._required_kw_args = get_required_kw_args(fn)
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
