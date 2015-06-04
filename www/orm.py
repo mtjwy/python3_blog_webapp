@@ -45,18 +45,51 @@ def select(sql, args, size = None):
 
 #wrap INSERT, UPDATE, DELETE
 @asyncio.coroutine
-def execute(sql, args):
+def execute(sql, args, autocommit=True):
 	log(sql)
 	with (yield from __pool) as conn:
+		if not autocommit:
+			yield form conn.begin()
 		try:
 			cur = yield from conn.cursor()
 			yield from cur.execute(sql.replace('?', '%s'), args)
 			affected = cur.rowcount
 			yield from cur.close()
+			if not autocommit:
+				yield from conn.commit()
 		except BaseException as e:
+			if not autocommit:
+				yield from conn.rollback()
 			raise
 		return affected
 
+#define the base class Model for all the ORM
+class Model(dict, metaclass=ModelMetaclass):
+	def __init__(self, **kw):
+		super(Model, self).__init__(**kw)
+	
+	def __getattr__(self, key):
+		try:
+			return self[key]
+		except KeyError:
+			raise AttributeError(r"'Model' object has no attribute '%s' %key")
+	
+	def __setattr__(self, key, value):
+		self[key] = value
+	
+	def __getValue(self, key):
+		return gatattr(self, key, None)
+	
+	def getValueOrDefault(self, key):
+		value = getattr(self, key, None)
+		if value is None:
+			field =self.__mappings__[key]
+			if field.default is not None:
+				value = field.default() if callable(field.default) else field.default
+				logging.debug('using default value for %s: %s' %(key, str(value)))
+				setattr(self, key, value)
+		return value
+		
 
 
 
