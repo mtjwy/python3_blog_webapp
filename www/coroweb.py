@@ -53,6 +53,13 @@ def has_request_arg(fn):
 			raise ValueError('request parameter must be the last named parameter in function:%s%s' %(fn.__name__, str(sig)))
 		return found
 		
+def has_var_kw_arg(fn):
+	params = inspect.signature(fn).parameters
+	for name, param in param.items():
+		if param.kind == inspect.Parameter.VAR_KEYWORD:
+			return True
+
+		
 class RequestHandler(object):
 	def __init__(self, app, fn):
 		self._app = app
